@@ -36,6 +36,7 @@ local Window = Rayfield:CreateWindow({
 local Tab = Window:CreateTab("Main Features", 4483362458)
 local TabShovels_MDetectors = Window:CreateTab("Shovels & Metal Detectors", 4483362458)
 local TabCrates = Window:CreateTab("Crates", 4483362458)
+local TabTeleports = Window:CreateTab("Teleports", 4483362458)
 local TabMisc = Window:CreateTab("Misc", 4483362458)
 local TabCre = Window:CreateTab("Credits", 4483362458)
 
@@ -195,8 +196,9 @@ local CrateButton4 = TabShovels_MDetectors:CreateButton({
 })
 
 -- Credits Label
-local Label1 = TabCre:CreateLabel("Credits to Hugh Man", 4483362458, Color3.fromRGB(255, 255, 255), false)
-local Label2 = TabCre:CreateLabel("If you want to support me my cashapp is $Thirdbase8", 4483362458, Color3.fromRGB(255, 255, 255), false)
+local Label1 = TabCre:CreateLabel("Credits to Hugh Man", 4483362458, Color3.fromRGB(0, 0, 0), false) -- Black text
+local Label2 = TabCre:CreateLabel("If you want to support me my cashapp is $Thirdbase8", 4483362458, Color3.fromRGB(0, 0, 0), false) -- Black text
+
 
 -- Unload Button
 local ButtonUnload = TabMisc:CreateButton({
@@ -205,6 +207,49 @@ local ButtonUnload = TabMisc:CreateButton({
       Rayfield:Destroy()
    end,
 })
+
+local TeleportLocations = {
+    Dusthaven = CFrame.new(175, 77, 232), -- Replace with actual Dusthaven coordinates
+    TheFarm = CFrame.new(39, 77, -179), -- Replace with actual The Farm coordinates
+    Tractors = CFrame.new(190, 77, -224), -- Replace with actual Tractors coordinates
+    TrainStation = CFrame.new(751, 77, -949), -- Replace with actual Train Station coordinates
+    TheMiddleOfNowhere = CFrame.new(-1002, 77, 1813) -- Replace with actual The Middle of Nowhere coordinates
+}
+
+local Dropdown = TabTeleports:CreateDropdown({
+   Name = "Teleports",
+   Options = {"None", "Dusthaven", "TheFarm", "Tractors", "TrainStation", "TheMiddleOfNowhere"},
+   CurrentOption = {"None"}, -- Force "None" as the initial value
+   MultipleOptions = false,
+   Flag = "Dropdown1", 
+   Callback = function(Options)
+      local selectedLocation = Options[1]
+      
+      -- Debugging: Log the selected location
+      print("Selected teleport location: " .. selectedLocation)
+
+      -- Check if the location exists in the TeleportLocations table
+      local teleportCFrame = TeleportLocations[selectedLocation]
+
+      if teleportCFrame then
+         -- Debugging: Log the teleport CFrame
+         print("Teleporting to: " .. selectedLocation .. " at coordinates: " .. tostring(teleportCFrame))
+
+         -- Ensure the player's character is fully loaded and teleport
+         local character = game.Players.LocalPlayer.Character
+         if character and character:FindFirstChild("HumanoidRootPart") then
+            character:SetPrimaryPartCFrame(teleportCFrame)
+         else
+            warn("Character or HumanoidRootPart not found!")
+         end
+      else
+         warn("Location not found in TeleportLocations: " .. selectedLocation)
+      end
+   end,
+})
+
+-- Ensure that "None" is set even after loading configuration
+Dropdown:SetCurrentOption({"None"})
 
 -- Load Configuration
 Rayfield:LoadConfiguration()
