@@ -79,24 +79,25 @@ end
 local function toggleHighlights()
    local lootFolder = game.Workspace:WaitForChild("Loot")
 
-   if highlightEnabled then
-      -- Add highlights to all items in Loot folder
-      for _, item in pairs(lootFolder:GetChildren()) do
-         createHighlight(item)
+   local function updateHighlights()
+      if highlightEnabled then
+         for _, item in pairs(lootFolder:GetChildren()) do
+            createHighlight(item)
+         end
+      else
+         for _, item in pairs(lootFolder:GetChildren()) do
+            removeHighlight(item)
+         end
       end
+   end
 
-      lootFolder.ChildAdded:Connect(function(child)
-         createHighlight(child)
-      end)
-      
-      lootFolder.ChildRemoved:Connect(function(child)
-         removeHighlight(child)
-      end)
-   else
-      -- Remove highlights from all items in Loot folder
-      for _, item in pairs(lootFolder:GetChildren()) do
-         removeHighlight(item)
-      end
+   -- Initial update
+   updateHighlights()
+
+   -- Reapply highlights every 5 seconds
+   while highlightEnabled do
+      task.wait(5)
+      updateHighlights()
    end
 end
 
@@ -106,7 +107,9 @@ local ToggleLootHighlight = Tab:CreateToggle({
    Flag = "ToggleLootHighlight", 
    Callback = function(Value)
       highlightEnabled = Value
-      toggleHighlights()  -- Update highlights when the toggle changes
+      if Value then
+         task.spawn(toggleHighlights)  -- Run the loop in a separate thread
+      end
    end,
 })
 
