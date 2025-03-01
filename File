@@ -1,0 +1,207 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Desert Detectors",
+   Icon = 0,
+   LoadingTitle = "Loading",
+   LoadingSubtitle = "by Hugh Man",
+   Theme = "Default",
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false,
+
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil,
+      FileName = "Big Hub"
+   },
+
+   Discord = {
+      Enabled = false,
+      Invite = "noinvitelink",
+      RememberJoins = true
+   },
+
+   KeySystem = false,
+   KeySettings = {
+      Title = "Untitled",
+      Subtitle = "Key System",
+      Note = "No method of obtaining the key is provided",
+      FileName = "Key",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"Hello"}
+   }
+})
+
+local Tab = Window:CreateTab("Main Features", 4483362458)
+local TabShovels_MDetectors = Window:CreateTab("Shovels & Metal Detectors", 4483362458)
+local TabCrates = Window:CreateTab("Crates", 4483362458)
+local TabMisc = Window:CreateTab("Misc", 4483362458)
+local TabCre = Window:CreateTab("Credits", 4483362458)
+
+-- Smelt Item Button
+local SmeltButton = Tab:CreateButton({
+   Name = "Smelt Item",
+   Callback = function()
+      local success, result = pcall(function()
+         loadstring(game:HttpGet('https://raw.githubusercontent.com/Thirdbase8/Script/refs/heads/main/Smelt%20item'))()
+      end)
+
+      if not success then
+         warn("Error loading Smelt Item script: " .. result)
+      end
+   end,
+})
+
+-- Loot Highlight Toggle (Initially off)
+local highlightEnabled = false
+
+local function createHighlight(object)
+   if not object:FindFirstChild("Highlight") then
+      local highlight = Instance.new("Highlight")
+      highlight.Name = "Highlight"
+      highlight.Parent = object
+      highlight.Adornee = object
+      highlight.FillColor = Color3.fromRGB(255, 255, 0)  -- Yellow highlight
+      highlight.FillTransparency = 0.5
+      highlight.OutlineColor = Color3.fromRGB(255, 255, 255)  -- White outline
+      highlight.OutlineTransparency = 0.3
+   end
+end
+
+local function removeHighlight(object)
+   local highlight = object:FindFirstChild("Highlight")
+   if highlight then
+      highlight:Destroy()
+   end
+end
+
+local function toggleHighlights()
+   local lootFolder = game.Workspace:WaitForChild("Loot")
+
+   if highlightEnabled then
+      -- Add highlights to all items in Loot folder
+      for _, item in pairs(lootFolder:GetChildren()) do
+         createHighlight(item)
+      end
+
+      lootFolder.ChildAdded:Connect(function(child)
+         createHighlight(child)
+      end)
+      
+      lootFolder.ChildRemoved:Connect(function(child)
+         removeHighlight(child)
+      end)
+   else
+      -- Remove highlights from all items in Loot folder
+      for _, item in pairs(lootFolder:GetChildren()) do
+         removeHighlight(item)
+      end
+   end
+end
+
+local ToggleLootHighlight = Tab:CreateToggle({
+   Name = "Loot Highlight",
+   CurrentValue = false,
+   Flag = "ToggleLootHighlight", 
+   Callback = function(Value)
+      highlightEnabled = Value
+      toggleHighlights()  -- Update highlights when the toggle changes
+   end,
+})
+
+-- Sell All Button
+local SellAllButton = Tab:CreateButton({
+   Name = "Sell all",
+   Callback = function()
+      local success, result = pcall(function()
+         loadstring(game:HttpGet('https://raw.githubusercontent.com/Thirdbase8/Script/refs/heads/main/Sell%20Inventory'))()
+      end)
+
+      if not success then
+         warn("Error loading Sell All script: " .. result)
+      end
+   end,
+})
+
+-- Get 10M Sheckles Button
+local ShecklesButton = Tab:CreateButton({
+   Name = "Get 10M Sheckles",
+   Callback = function()
+      local success, result = pcall(function()
+         loadstring(game:HttpGet('https://raw.githubusercontent.com/Thirdbase8/Script/refs/heads/main/10M%20Sheckles'))()
+      end)
+
+      if not success then
+         warn("Error loading 10M Sheckles script: " .. result)
+      end
+   end,
+})
+
+-- Crate Buttons
+local CrateButton1 = TabCrates:CreateButton({
+   Name = "Purchase Legendary Crate",
+   Callback = function()
+      local success, result = pcall(function()
+         loadstring(game:HttpGet('https://raw.githubusercontent.com/Thirdbase8/Script/refs/heads/main/Purchase%20Legendary%20Crate'))()
+      end)
+
+      if not success then
+         warn("Error loading Purchase Legendary Crate script: " .. result)
+      end
+   end,
+})
+
+local CrateButton2 = TabCrates:CreateButton({
+   Name = "Purchase 100X Charm Crate",
+   Callback = function()
+      local success, result = pcall(function()
+         loadstring(game:HttpGet('https://raw.githubusercontent.com/Thirdbase8/Script/refs/heads/main/Charm%20crates'))()
+      end)
+
+      if not success then
+         warn("Error loading Purchase Charm Crate script: " .. result)
+      end
+   end,
+})
+
+local CrateButton3 = TabShovels_MDetectors:CreateButton({
+   Name = "Purchase all shovels",
+   Callback = function()
+      local success, result = pcall(function()
+         loadstring(game:HttpGet('https://raw.githubusercontent.com/Thirdbase8/Script/refs/heads/main/Purchase%20all%20shovels'))()
+      end)
+
+      if not success then
+         warn("Error loading Purchase Shovels script: " .. result)
+      end
+   end,
+})
+
+local CrateButton4 = TabShovels_MDetectors:CreateButton({
+   Name = "Purchase all Detectors",
+   Callback = function()
+      local success, result = pcall(function()
+         loadstring(game:HttpGet('https://raw.githubusercontent.com/Thirdbase8/Script/refs/heads/main/Purchase%20all%20detectors'))()
+      end)
+
+      if not success then
+         warn("Error loading Purchase Detectors script: " .. result)
+      end
+   end,
+})
+
+-- Credits Label
+local Label1 = TabCre:CreateLabel("Credits to Hugh Man", 4483362458, Color3.fromRGB(255, 255, 255), false)
+local Label2 = TabCre:CreateLabel("If you want to support me my cashapp is $Thirdbase8", 4483362458, Color3.fromRGB(255, 255, 255), false)
+
+-- Unload Button
+local ButtonUnload = TabMisc:CreateButton({
+   Name = "Unload",
+   Callback = function()
+      Rayfield:Destroy()
+   end,
+})
+
+-- Load Configuration
+Rayfield:LoadConfiguration()
