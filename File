@@ -54,8 +54,9 @@ local SmeltButton = Tab:CreateButton({
    end,
 })
 
--- Loot Highlight Toggle (Initially off)
+-- Loot Highlight Toggle (No Limit on Highlighted Objects)
 local highlightEnabled = false
+local lootFolder = game.Workspace:FindFirstChild("Loot")
 
 local function createHighlight(object)
    if not object:FindFirstChild("Highlight") then
@@ -77,28 +78,32 @@ local function removeHighlight(object)
    end
 end
 
-local function toggleHighlights()
-   local lootFolder = game.Workspace:WaitForChild("Loot")
-
-   local function updateHighlights()
-      if highlightEnabled then
-         for _, item in pairs(lootFolder:GetChildren()) do
+local function updateAllHighlights()
+   if lootFolder then
+      for _, item in pairs(lootFolder:GetChildren()) do
+         if highlightEnabled then
             createHighlight(item)
-         end
-      else
-         for _, item in pairs(lootFolder:GetChildren()) do
+         else
             removeHighlight(item)
          end
       end
    end
+end
 
-   -- Initial update
-   updateHighlights()
+local function toggleHighlights(Value)
+   highlightEnabled = Value
+   updateAllHighlights()
 
-   -- Reapply highlights every 5 seconds
-   while highlightEnabled do
-      task.wait(5)
-      updateHighlights()
+   if lootFolder then
+      lootFolder.ChildAdded:Connect(function(item)
+         if highlightEnabled then
+            createHighlight(item)
+         end
+      end)
+
+      lootFolder.ChildRemoved:Connect(function(item)
+         removeHighlight(item)
+      end)
    end
 end
 
@@ -106,12 +111,7 @@ local ToggleLootHighlight = Tab:CreateToggle({
    Name = "Loot Highlight",
    CurrentValue = false,
    Flag = "ToggleLootHighlight", 
-   Callback = function(Value)
-      highlightEnabled = Value
-      if Value then
-         task.spawn(toggleHighlights)  -- Run the loop in a separate thread
-      end
-   end,
+   Callback = toggleHighlights,
 })
 
 -- Sell All Button
@@ -128,7 +128,7 @@ local SellAllButton = Tab:CreateButton({
    end,
 })
 
--- Get 10M Sheckles Button
+-- Get 1M Sheckles Button
 local ShecklesButton = Tab:CreateButton({
    Name = "Get 10M Sheckles",
    Callback = function()
@@ -137,7 +137,7 @@ local ShecklesButton = Tab:CreateButton({
       end)
 
       if not success then
-         warn("Error loading 10M Sheckles script: " .. result)
+         warn("Error loading 1M Sheckles script: " .. result)
       end
    end,
 })
@@ -196,9 +196,8 @@ local CrateButton4 = TabShovels_MDetectors:CreateButton({
 })
 
 -- Credits Label
-local Label1 = TabCre:CreateLabel("Credits to Hugh Man", 4483362458, Color3.fromRGB(0, 0, 0), false) -- Black text
-local Label2 = TabCre:CreateLabel("If you want to support me my cashapp is $Thirdbase8", 4483362458, Color3.fromRGB(0, 0, 0), false) -- Black text
-
+local Label1 = TabCre:CreateLabel("Credits to Hugh Man", 4483362458, Color3.fromRGB(0, 0, 0), false)
+local Label2 = TabCre:CreateLabel("If you want to support me my cashapp is $Thirdbase8", 4483362458, Color3.fromRGB(0, 0, 0), false)
 
 -- Unload Button
 local ButtonUnload = TabMisc:CreateButton({
@@ -209,46 +208,32 @@ local ButtonUnload = TabMisc:CreateButton({
 })
 
 local TeleportLocations = {
-    Dusthaven = CFrame.new(175, 77, 232), -- Replace with actual Dusthaven coordinates
-    TheFarm = CFrame.new(39, 77, -179), -- Replace with actual The Farm coordinates
-    Tractors = CFrame.new(190, 77, -224), -- Replace with actual Tractors coordinates
-    TrainStation = CFrame.new(751, 77, -949), -- Replace with actual Train Station coordinates
-    TheMiddleOfNowhere = CFrame.new(-1002, 77, 1813) -- Replace with actual The Middle of Nowhere coordinates
+    Dusthaven = CFrame.new(175, 77, 232),
+    TheFarm = CFrame.new(39, 77, -179),
+    Tractors = CFrame.new(190, 77, -224),
+    TrainStation = CFrame.new(751, 77, -949),
+    TheMiddleOfNowhere = CFrame.new(-1002, 77, 1813)
 }
 
 local Dropdown = TabTeleports:CreateDropdown({
    Name = "Teleports",
    Options = {"None", "Dusthaven", "TheFarm", "Tractors", "TrainStation", "TheMiddleOfNowhere"},
-   CurrentOption = {"None"}, -- Force "None" as the initial value
+   CurrentOption = {"None"},
    MultipleOptions = false,
    Flag = "Dropdown1", 
    Callback = function(Options)
       local selectedLocation = Options[1]
-      
-      -- Debugging: Log the selected location
-      print("Selected teleport location: " .. selectedLocation)
-
-      -- Check if the location exists in the TeleportLocations table
       local teleportCFrame = TeleportLocations[selectedLocation]
 
       if teleportCFrame then
-         -- Debugging: Log the teleport CFrame
-         print("Teleporting to: " .. selectedLocation .. " at coordinates: " .. tostring(teleportCFrame))
-
-         -- Ensure the player's character is fully loaded and teleport
          local character = game.Players.LocalPlayer.Character
          if character and character:FindFirstChild("HumanoidRootPart") then
             character:SetPrimaryPartCFrame(teleportCFrame)
-         else
-            warn("Character or HumanoidRootPart not found!")
          end
-      else
-         warn("Location not found in TeleportLocations: " .. selectedLocation)
       end
    end,
 })
 
--- Ensure that "None" is set even after loading configuration
 Dropdown:SetCurrentOption({"None"})
 
 -- Load Configuration
